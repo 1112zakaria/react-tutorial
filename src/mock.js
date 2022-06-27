@@ -1,5 +1,8 @@
 import React from "react";
 
+// TODO: refactor further by abstracting certain props,
+// like stocked, to display?
+
 /**
  * Attributes:
  * name,
@@ -140,7 +143,7 @@ class SearchBar extends React.Component {
       <form>
         <input type="text" placeholder="Search..." />
         <p>
-          <input type="checkbox" onChange={this.handleChange} />
+          <input type="checkbox" onChange={this.handleChange} checked={this.props.stockedOnly}/>
           Only show products in stock
         </p>
       </form>
@@ -172,7 +175,7 @@ export class FilterableProductTable extends React.Component {
     console.log("STATE IS NOW " + this.state.stockedOnly);
     return (
       <div>
-        <SearchBar onCheckboxChange={this.handleCheckboxChange} />
+        <SearchBar onCheckboxChange={this.handleCheckboxChange} stockedOnly={stockedOnly}/>
         <ProductTable products={this.products} stockedOnly={stockedOnly} />
       </div>
     );

@@ -11,20 +11,35 @@ import React from "react";
  */
 class ProductRow extends React.Component {
   // FIXME: this needs to be cleaned
+  // FIXME: out of stock items are not showing in search
   constructor(props) {
     super(props);
     this.product = props.product;
-    this.name = this.product.stocked ?
-      this.product.name :
-      <span style={{ color: 'red' }}>{this.product.name}</span>;
-    this.price = props.product.price;
-    this.stocked = this.product.stocked;
+    
+  }
+
+  matchFilter() {
+    const filterText = this.props.filterText;
+    if (filterText === "") {
+      return true;
+    }
+    let re = new RegExp(filterText);
+    let str = this.name.toString().toLowerCase();
+    return re.test(str);
   }
 
   render() {
-    if (this.props.stockedOnly && !this.stocked) {
+    this.product = this.props.product;
+    this.name = this.product.stocked ?
+      this.product.name :
+      <span style={{ color: 'red' }}>{this.product.name}</span>;
+    this.price = this.props.product.price;
+    this.stocked = this.product.stocked;
+    
+    if ( (this.props.stockedOnly && !this.stocked) || !this.matchFilter()) {
       return "";
     }
+
     return (
       <tr>
         <td>{this.name}</td>
@@ -50,7 +65,10 @@ class ProductCategoryRow extends React.Component {
 
     this.products.forEach((product) => {
       if (product.category === this.category) {
-        productRows.push(<ProductRow product={product} stockedOnly={stockedOnly}/>);
+        productRows.push(<ProductRow 
+          product={product} 
+          stockedOnly={stockedOnly}
+          filterText={this.props.filterText}/>);
         if (product.stocked) {
           isStocked = true;
         }
@@ -100,6 +118,7 @@ class ProductTable extends React.Component {
     // 2. iterate over products, creating array
     //  of products in same category and pass as
     //  argument to <ProductCategoryRow>
+    // FIXME: attributes can be refactored, or even turned to function?
     const productCategoryRows = [];
     const stockedOnly = this.props.stockedOnly;
     this.products = this.props.products;
@@ -109,7 +128,8 @@ class ProductTable extends React.Component {
       productCategoryRows.push(<ProductCategoryRow
         products={this.products}
         category={category}
-        stockedOnly={stockedOnly} />)
+        stockedOnly={stockedOnly} 
+        filterText={this.props.filterText}/>)
     });
 
     return (

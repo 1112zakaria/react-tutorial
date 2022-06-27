@@ -3,6 +3,7 @@ import React from "react";
 // TODO: refactor further by abstracting certain props,
 // like stocked, to display?
 // TODO: add filter text
+// https://www.youtube.com/watch?v=N_s_ZTeiXxE
 
 /**
  * Attributes:
@@ -19,12 +20,12 @@ class ProductRow extends React.Component {
   }
 
   matchFilter() {
-    const filterText = this.props.filterText;
+    const filterText = this.props.filterText.toLowerCase();
     if (filterText === "") {
       return true;
     }
     let re = new RegExp(filterText);
-    let str = this.name.toString().toLowerCase();
+    let str = this.product.name.toString().toLowerCase();
     return re.test(str);
   }
 
@@ -33,7 +34,7 @@ class ProductRow extends React.Component {
     this.name = this.product.stocked ?
       this.product.name :
       <span style={{ color: 'red' }}>{this.product.name}</span>;
-    this.price = this.props.product.price;
+    this.price = this.product.price;
     this.stocked = this.product.stocked;
     
     if ( (this.props.stockedOnly && !this.stocked) || !this.matchFilter()) {
@@ -87,7 +88,7 @@ class ProductCategoryRow extends React.Component {
       return (
         <div>
           <tr>
-            <th>{this.category}</th>
+            <th colspan="2">{this.category}</th>
           </tr>
           {productRows}
         </div>
@@ -152,23 +153,29 @@ class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(e) {
     console.log("CHECKBOX STATUS: " + e.target.checked);
     console.log("Target: " + e.target.name);
     // FIXME: this feels poorly scalable
-    if (e.target.name == "stockBox") {
+    if (e.target.name === "stockBox") {
       this.props.onCheckboxChange(e.target.checked);
     } else {
+      e.preventDefault()
       this.props.onFilterChange(e.target.value);
     }
 
   }
 
+  handleSubmit(e) {
+    e.preventDefault();
+  }
+
   render() {
     return (
-      <form>
+      <form onSubmit={this.handleSubmit}>
         <input 
           type="text" 
           name="filterText"

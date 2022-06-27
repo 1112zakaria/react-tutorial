@@ -105,13 +105,22 @@ class ProductTable extends React.Component {
 }
 
 class SearchBar extends React.Component {
-  
+  constructor(props) {
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e) {
+    console.log(e.target.checked);
+    this.props.onCheckboxChange(e.target.checked);
+  }
+
   render() {
     return (
       <form>
         <input type="text" placeholder="Search..." />
         <p>
-          <input type="checkbox" />
+          <input type="checkbox" onChange={this.handleChange}/>
           Only show products in stock
         </p>
       </form>
@@ -127,12 +136,18 @@ export class FilterableProductTable extends React.Component {
   constructor(props) {
     super(props);
     this.products = props.products;
+    this.state = {onlyStocked: false};
+    this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+  }
+
+  handleCheckboxChange(value) {
+    this.setState({onlyStocked: value});
   }
 
   render() {
     return (
       <div>
-        <SearchBar />
+        <SearchBar onCheckboxChange={this.handleCheckboxChange}/>
         <ProductTable products={this.products} />
       </div>
     );

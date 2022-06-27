@@ -14,18 +14,13 @@ class ProductRow extends React.Component {
       this.product.name :
       <span style={{ color: 'red' }}>{this.product.name}</span>;
     this.price = props.product.price;
-  }
-
-  componentWillUnmount() {
-    console.log("ProductRow " + this.name + " has unmounted");
+    this.stocked = this.product.stocked;
   }
 
   render() {
-    this.product = this.props.product;
-    this.name = this.product.stocked ?
-      this.product.name :
-      <span style={{ color: 'red' }}>{this.product.name}</span>;
-    this.price = this.props.product.price;
+    if (this.props.stockedOnly && !this.stocked) {
+      return "";
+    }
     return (
       <tr>
         <td>{this.name}</td>
@@ -47,23 +42,21 @@ class ProductCategoryRow extends React.Component {
     // Nexus7 is not being rendered when it should
     let productRows = [];
     let stockedOnly = this.props.stockedOnly;
-    this.products = this.props.products;
-    this.category = this.props.category;
+    let isStocked = false;
 
-    this.products.forEach( (product) => {
+    this.products.forEach((product) => {
       if (product.category === this.category) {
-        if (!product.stocked && stockedOnly) {
-          console.log("Product " + product.name + " not stocked");
-        } else {
-          productRows.push(<ProductRow product={product} />);
+        productRows.push(<ProductRow product={product} stockedOnly={stockedOnly}/>);
+        if (product.stocked) {
+          isStocked = true;
         }
       }
     });
 
-    if (productRows.length > 0) {
-      return productRows;
+    if (!isStocked && stockedOnly) {
+      return "";
     }
-    return "";
+    return productRows;
   }
 
   render() {
@@ -170,7 +163,7 @@ export class FilterableProductTable extends React.Component {
   handleCheckboxChange(value) {
     console.log("Setting stockedOnly state to " + value);
     this.setState({ stockedOnly: value });
-    
+
   }
 
   render() {

@@ -2,6 +2,7 @@ import React from "react";
 
 // TODO: refactor further by abstracting certain props,
 // like stocked, to display?
+// TODO: add filter text
 
 /**
  * Attributes:
@@ -135,15 +136,31 @@ class SearchBar extends React.Component {
 
   handleChange(e) {
     console.log("CHECKBOX STATUS: " + e.target.checked);
-    this.props.onCheckboxChange(e.target.checked);
+    console.log("Target: " + e.target.name);
+    // FIXME: this feels poorly scalable
+    if (e.target.name == "stockBox") {
+      this.props.onCheckboxChange(e.target.checked);
+    } else {
+      this.props.onFilterChange(e.target.value);
+    }
+
   }
 
   render() {
     return (
       <form>
-        <input type="text" placeholder="Search..." />
+        <input 
+          type="text" 
+          name="filterText"
+          placeholder="Search..." 
+          value={this.props.filterText}
+          onChange={this.handleChange}/>
         <p>
-          <input type="checkbox" onChange={this.handleChange} checked={this.props.stockedOnly}/>
+          <input 
+            type="checkbox" 
+            name="stockBox"
+            onChange={this.handleChange} 
+            checked={this.props.stockedOnly} />
           Only show products in stock
         </p>
       </form>
@@ -159,8 +176,9 @@ export class FilterableProductTable extends React.Component {
   constructor(props) {
     super(props);
     this.products = props.products;
-    this.state = { stockedOnly: false };
+    this.state = { stockedOnly: false, filterText: '' };
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+    this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
   handleCheckboxChange(value) {
@@ -169,14 +187,25 @@ export class FilterableProductTable extends React.Component {
 
   }
 
+  handleFilterChange(value) {
+    this.setState({ filterText: value });
+  }
+
   render() {
     const stockedOnly = this.state.stockedOnly;
     this.products = this.props.products;
     console.log("STATE IS NOW " + this.state.stockedOnly);
     return (
       <div>
-        <SearchBar onCheckboxChange={this.handleCheckboxChange} stockedOnly={stockedOnly}/>
-        <ProductTable products={this.products} stockedOnly={stockedOnly} />
+        <SearchBar 
+          onCheckboxChange={this.handleCheckboxChange}
+          onFilterChange={this.handleFilterChange}
+          stockedOnly={stockedOnly} 
+          filterText={this.state.filterText}/>
+        <ProductTable 
+          products={this.products} 
+          stockedOnly={stockedOnly} 
+          filterText={this.state.filterText}/>
       </div>
     );
   }

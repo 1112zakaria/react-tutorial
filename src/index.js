@@ -8,6 +8,8 @@ import { Greeting, LoginControl, Page } from './conditional';
 import { NumberList } from './lists';
 import { Calculator, NameForm, Reservation } from './forms';
 import { SignUpDialog, WelcomeDialog } from './composition';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { FilterableProductTable } from './mock';
 /*import WelcomeCls from './components.js';
 import WelcomeFn from './components.js';
 import AppFn from './components.js';
@@ -55,10 +57,10 @@ const link = <a href="https://www.reactjs.org">React.js website</a>;
 const img = <img src={user.avatarUrl} alt='This is img'></img>;
 const createElm = React.createElement(
     'h1',
-    {className: 'greeting'},
+    { className: 'greeting' },
     'Hola, world. This uses React.createElement'
 );
-const welcome = <WelcomeCls name="Sara"/>;
+const welcome = <WelcomeCls name="Sara" />;
 //const welcome = "heh";
 const app = <AppFn />;
 const clock = <Clock />;
@@ -67,7 +69,7 @@ const toggle = <Toggle />;
 const greeting = <Greeting isLoggedIn={false} />;
 const loginControl = <LoginControl />;
 const page = <Page />;
-const numberList = <NumberList numbers={[5,6,7,2,1,33,6]} />;
+const numberList = <NumberList numbers={[5, 6, 7, 2, 1, 33, 6]} />;
 const nameForm = <NameForm />;
 const reservation = <Reservation />;
 const calculator = <Calculator />;
@@ -81,12 +83,12 @@ const element = (
             getGreeting(name): {getGreeting(name)}
         </h1>
         <h2>
-            {welcome}<br/>   
+            {welcome}<br />
         </h2>
         <h2>{createElm}</h2>
         <h3>{link}{img}</h3>
-        {app}<br/>
-        <Comment author={commentUser} text={commentText} date={commentDate} /><br/>
+        {app}<br />
+        <Comment author={commentUser} text={commentText} date={commentDate} /><br />
         {clock}
         {form}
         {toggle}
@@ -100,10 +102,41 @@ const element = (
         {welcomeDialog}
         {signupDialog}
     </div>
-    
+
 );
 
-root.render(element);   // this is overwritten after 1 second
+const data = [
+    {category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
+    {category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
+    {category: "Sporting Goods", price: "$29.99", stocked: false, name: "Basketball"},
+    {category: "Electronics", price: "$99.99", stocked: true, name: "iPod Touch"},
+    {category: "Electronics", price: "$399.99", stocked: false, name: "iPhone 5"},
+    {category: "Electronics", price: "$199.99", stocked: true, name: "Nexus 7"}
+  ];
+
+const mock = (
+    <div>
+        <FilterableProductTable products={data} />
+    </div>
+);
+
+const main = (
+    <div>
+
+        <Router>
+            <nav>
+                <Link to="/">Main</Link>
+                <Link to="/mock">Mock</Link>
+            </nav>
+            <Routes>
+                <Route path="/" element={element} />
+                <Route path="mock" element={mock} />
+            </Routes>
+        </Router>
+    </div>
+);
+
+root.render(main);   // this is overwritten after 1 second
 
 //root.render(app);
 //setInterval(tick, 1000);

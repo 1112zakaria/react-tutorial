@@ -6,16 +6,26 @@ import React from "react";
  * price, 
  */
 class ProductRow extends React.Component {
+  // FIXME: this needs to be cleaned
   constructor(props) {
     super(props);
     this.product = props.product;
-    this.name = this.product.stocked ? 
-      this.product.name : 
-      <span style={{color: 'red'}}>{this.product.name}</span>;
+    this.name = this.product.stocked ?
+      this.product.name :
+      <span style={{ color: 'red' }}>{this.product.name}</span>;
     this.price = props.product.price;
   }
 
+  componentWillUnmount() {
+    console.log("ProductRow " + this.name + " has unmounted");
+  }
+
   render() {
+    this.product = this.props.product;
+    this.name = this.product.stocked ?
+      this.product.name :
+      <span style={{ color: 'red' }}>{this.product.name}</span>;
+    this.price = this.props.product.price;
     return (
       <tr>
         <td>{this.name}</td>
@@ -29,33 +39,46 @@ class ProductCategoryRow extends React.Component {
   constructor(props) {
     super(props);
     this.products = props.products;
-    console.log(this.products);
     this.category = props.category;
-
   }
 
   getProductRows() {
-    const productRows = [];
-    this.products.forEach((product) => {
+    // FIXME: iPhone 5 is being rendered when it should not
+    // Nexus7 is not being rendered when it should
+    let productRows = [];
+    let stockedOnly = this.props.stockedOnly;
+    this.products = this.props.products;
+    this.category = this.props.category;
+
+    this.products.forEach( (product) => {
       if (product.category === this.category) {
-        productRows.push(<ProductRow product={product} />);
+        if (!product.stocked && stockedOnly) {
+          console.log("Product " + product.name + " not stocked");
+        } else {
+          productRows.push(<ProductRow product={product} />);
+        }
       }
     });
 
-    return productRows;
+    if (productRows.length > 0) {
+      return productRows;
+    }
+    return "";
   }
 
   render() {
-    const productRows = this.getProductRows();
-    console.log(productRows);
-    return (
-      <div>
-        <tr>
-          <th>{this.category}</th>
-        </tr>
-        {productRows}
-      </div>
-    );
+    let productRows = this.getProductRows();
+    if (productRows !== "") {
+      return (
+        <div>
+          <tr>
+            <th>{this.category}</th>
+          </tr>
+          {productRows}
+        </div>
+      );
+    }
+    return "";
   }
 }
 
@@ -64,7 +87,6 @@ class ProductTable extends React.Component {
     super(props);
     this.products = props.products;
     this.categories = this.getCategories();
-
   }
 
   getCategories() {
@@ -82,10 +104,15 @@ class ProductTable extends React.Component {
     //  of products in same category and pass as
     //  argument to <ProductCategoryRow>
     const productCategoryRows = [];
+    const stockedOnly = this.props.stockedOnly;
+    this.products = this.props.products;
+    this.categories = this.getCategories();
+
     this.categories.forEach((category) => {
       productCategoryRows.push(<ProductCategoryRow
         products={this.products}
-        category={category} />)
+        category={category}
+        stockedOnly={stockedOnly} />)
     });
 
     return (
@@ -111,7 +138,7 @@ class SearchBar extends React.Component {
   }
 
   handleChange(e) {
-    console.log(e.target.checked);
+    console.log("CHECKBOX STATUS: " + e.target.checked);
     this.props.onCheckboxChange(e.target.checked);
   }
 
@@ -120,7 +147,7 @@ class SearchBar extends React.Component {
       <form>
         <input type="text" placeholder="Search..." />
         <p>
-          <input type="checkbox" onChange={this.handleChange}/>
+          <input type="checkbox" onChange={this.handleChange} />
           Only show products in stock
         </p>
       </form>
@@ -136,19 +163,24 @@ export class FilterableProductTable extends React.Component {
   constructor(props) {
     super(props);
     this.products = props.products;
-    this.state = {onlyStocked: false};
+    this.state = { stockedOnly: false };
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
   }
 
   handleCheckboxChange(value) {
-    this.setState({onlyStocked: value});
+    console.log("Setting stockedOnly state to " + value);
+    this.setState({ stockedOnly: value });
+    
   }
 
   render() {
+    const stockedOnly = this.state.stockedOnly;
+    this.products = this.props.products;
+    console.log("STATE IS NOW " + this.state.stockedOnly);
     return (
       <div>
-        <SearchBar onCheckboxChange={this.handleCheckboxChange}/>
-        <ProductTable products={this.products} />
+        <SearchBar onCheckboxChange={this.handleCheckboxChange} />
+        <ProductTable products={this.products} stockedOnly={stockedOnly} />
       </div>
     );
   }
